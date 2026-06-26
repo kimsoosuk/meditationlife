@@ -1,0 +1,32 @@
+name = "studymental"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# [observability]
+# enabled = false
+# head_sampling_rate = 1
+
+# [observability.logs]
+# enabled = true
+# head_sampling_rate = 1
+# persist = true
+# invocation_logs = true
+
+# [observability.traces]
+# enabled = false
+# persist = true
+# head_sampling_rate = 1
+
+
+[[d1_databases]]
+binding = "DB"
+database_name = "studymental"
+database_id = "8346212a-1106-4404-849e-8603821b1b6e"
+
+[dev]
+ip = "127.0.0.1"
+port = 8790
+
+
+# CLAUDE_API_KEY는 Cloudflare Dashboard > Workers > studymental > Settings > Variables 에서 설정
+# (평문 저장 금지 — 반드시 "Encrypt" 체크)

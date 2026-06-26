@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>학업정서(EQ) 진단</title>
+    <link rel="stylesheet" href="style.css" />
+
+    <script>
+      window.APP_CONFIG = {
+        apiBase: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://127.0.0.1:8790'
+          : 'https://studymental.kimsoosuk1.workers.dev',
+      };
+    </script>
+  </head>
+
+  <body>
+    <!-- ═══ SCREEN 3: SURVEY ═══ -->
+    <section id="screen-survey" class="screen">
+      <div class="survey-header">
+        <div class="survey-header-inner">
+          <div class="progress-wrap">
+            <div class="progress-meta">
+              <span>학업정서(EQ) 진단</span
+              ><span id="progress-text">0/50 완료</span>
+            </div>
+            <div class="progress-track">
+              <div id="progress-bar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="survey-body">
+        <div id="question-list"></div>
+        <div class="survey-nav">
+          <button id="btn-prev" class="btn btn-secondary" disabled>
+            ← 이전
+          </button>
+          <button id="btn-next" class="btn btn-primary" disabled>다음 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SCREEN 4: RESULT (레포트) ═══ -->
+    <section id="screen-result" class="screen">
+      <!-- 레포트 액션 바 (PDF 버튼 등 — 인쇄 시 숨김) -->
+      <div class="report-action-bar no-print">
+        <div class="container">
+          <span class="report-action-title">학업정서(EQ) 진단 레포트</span>
+          <div class="report-action-btns">
+            <button id="btn-restart" class="btn btn-secondary btn-sm">
+              다시 검사하기
+            </button>
+            <button id="btn-pdf" class="btn btn-primary btn-sm">
+              PDF 저장
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 레포트 본문 (PDF 캡처 대상) ── -->
+      <div id="report-root">
+        <!-- PAGE 1: 표지 + 종합 지수 + 게이지 -->
+        <div class="pdf-page" id="pdf-page-1">
+          <div class="page-inner">
+            <!-- 레포트 헤더 -->
+            <!-- 레터헤드 (중앙 정렬) -->
+            <div class="rpt-header-center">
+              <div class="rpt-badge-premium">Academic EQ Report</div>
+              <h1 class="rpt-main-title">
+                <span id="rpt-name-title">—</span> 학생의 학업정서(EQ) 분석
+                레포트
+              </h1>
+              <div class="rpt-date-row">
+                측정일: <span id="rpt-date">—</span>
+              </div>
+            </div>
+
+            <div class="rpt-divider-premium"></div>
+
+            <!-- 사용자 정보 (가볍게 위계 축소 및 표 스타일) -->
+            <div class="rpt-user-meta-table">
+              <div class="meta-cell">
+                <span class="meta-label">성명</span>
+                <span class="meta-value" id="rpt-name">—</span>
+              </div>
+              <div class="meta-cell">
+                <span class="meta-label">학년</span>
+                <span class="meta-value" id="rpt-grade">—</span>
+              </div>
+              <div class="meta-cell">
+                <span class="meta-label">학원·과외</span>
+                <span class="meta-value" id="rpt-academies">—</span>
+              </div>
+              <div class="meta-cell-wide">
+                <span class="meta-label">선행 진도</span>
+                <span class="meta-value" id="rpt-advance">—</span>
+              </div>
+            </div>
+            <div class="rpt-meta-divider-main"><hr /></div>
+
+            <!-- 종합 지수 히어로 -->
+            <div class="rpt-score-hero">
+              <div class="rpt-score-left">
+                <div class="rpt-score-label">학업정서(EQ)</div>
+                <div class="rpt-score-number" id="rpt-index">—</div>
+              </div>
+              <div class="rpt-score-right">
+                <!-- 막대 게이지 (5점 단위 컬러 적용) -->
+                <div class="rpt-gauge-wrap">
+                  <div class="rpt-gauge-track" style="margin-bottom: 24px">
+                    <div
+                      class="rpt-gauge-segments"
+                      style="
+                        background: linear-gradient(
+                          to right,
+                          #ef4444 0%,
+                          #f97316 25%,
+                          #eab308 37.5%,
+                          #22c55e 62.5%,
+                          #6366f1 75%,
+                          #6366f1 100%
+                        );
+                      "
+                    >
+                      <!-- 그라데이션 배경으로 통합 -->
+                    </div>
+                    <div class="rpt-gauge-needle" id="rpt-needle"></div>
+                    <!-- 절대 위치 레이블 -->
+                    <span class="g-lbl" style="left: 0%">40</span>
+                    <span class="g-lbl" style="left: 25%">70</span>
+                    <span class="g-lbl" style="left: 37.5%">85</span>
+                    <span class="g-lbl" style="left: 50%">100</span>
+                    <span class="g-lbl" style="left: 62.5%">115</span>
+                    <span class="g-lbl" style="left: 75%">130</span>
+                    <span class="g-lbl" style="left: 100%">160</span>
+
+                    <span class="g-zone" style="left: 12.5%">매우낮음</span>
+                    <span class="g-zone" style="left: 31.25%">낮음</span>
+                    <span class="g-zone" style="left: 50%">보통</span>
+                    <span class="g-zone" style="left: 68.75%">높음</span>
+                    <span class="g-zone" style="left: 87.5%">매우높음</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 영역별 미니 바 차트 (다시 상하 배치로 복원) -->
+            <div class="rpt-factors-vertical">
+              <div class="rpt-factor-box">
+                <div class="mini-bars-header">내적 요인 (심리)</div>
+                <div class="rpt-mini-bars" id="rpt-mini-bars-internal"></div>
+              </div>
+              <div class="rpt-factor-box">
+                <div class="mini-bars-header">외적 요인 (환경)</div>
+                <div class="rpt-mini-bars" id="rpt-mini-bars-external"></div>
+              </div>
+            </div>
+
+            <!-- AI 총평 -->
+            <div class="rpt-section">
+              <div class="rpt-section-title">종합 분석</div>
+              <div class="rpt-summary-box" id="rpt-summary">
+                <div class="ai-loading">분석 중...</div>
+              </div>
+            </div>
+
+            <div class="page-footer">©지혜의산실</div>
+          </div>
+        </div>
+
+        <!-- PAGE 2: 영역별 상세 분석 1 -->
+        <div class="pdf-page" id="pdf-page-2">
+          <div class="page-inner">
+            <div class="rpt-page-header" style="justify-content: flex-end">
+              <span id="rpt-name-2" class="rpt-name-sm"></span>
+            </div>
+            <div class="rpt-divider"></div>
+            <div class="rpt-section-title" style="margin-bottom: 8px">
+              학업정서 내적 요인
+            </div>
+            <p
+              style="
+                font-size: 14px;
+                color: #555;
+                line-height: 1.5;
+                margin-bottom: 30px;
+                word-break: keep-all;
+              "
+            >
+              이 네 가지 영역(호감, 체감, 직감, 관리)은 학생의 내면적인 학습
+              동기와 방법론적 감각을 측정하는
+              <strong>'내적 요인'</strong>입니다. 학업에 대한 전반적인
+              태도(관리)부터 시작해 순수한 호감, 자신만의 공부법(체감), 그리고
+              객관적인 메타인지(직감)는 장기적인 학업정서(EQ)를 지탱하는 가장
+              핵심적인 뿌리가 됩니다.
+            </p>
+            <div id="rpt-categories-1"></div>
+            <div class="page-footer">©지혜의산실</div>
+          </div>
+        </div>
+
+        <!-- PAGE 3: 영역별 상세 분석 2 -->
+        <div class="pdf-page" id="pdf-page-3">
+          <div class="page-inner">
+            <div class="rpt-page-header" style="justify-content: flex-end">
+              <span id="rpt-name-3" class="rpt-name-sm"></span>
+            </div>
+            <div class="rpt-divider"></div>
+            <div class="rpt-section-title" style="margin-bottom: 8px">
+              학업정서 외적 요인
+            </div>
+            <p
+              style="
+                font-size: 14px;
+                color: #555;
+                line-height: 1.5;
+                margin-bottom: 30px;
+                word-break: keep-all;
+              "
+            >
+              이 영역들은 학생을 둘러싼 환경과 외부 자극이 공부에 미치는 영향을
+              측정하는 <strong>'외적 요인'</strong>입니다. 주변의 기대, 미래에
+              대한 불안감, 자존심 등의 외부적 요소들이 학습을 방해하는
+              스트레스로 작용하고 있는지, 혹은 건강한 원동력으로 작용하는지
+              파악합니다.
+            </p>
+            <div id="rpt-categories-2"></div>
+            <div class="page-footer">©지혜의산실</div>
+          </div>
+        </div>
+
+        <!-- PAGE 4: 예측 + 조언 -->
+        <div class="pdf-page" id="pdf-page-4">
+          <div class="page-inner">
+            <div
+              class="rpt-page-header"
+              style="
+                justify-content: flex-end;
+                border-bottom: 1px solid var(--rpt-ink);
+                padding-bottom: 8px;
+                margin-bottom: 24px;
+                opacity: 0.7;
+              "
+            >
+              <span id="rpt-name-4" class="rpt-name-sm"></span>
+            </div>
+
+            <div class="rpt-section" style="margin-bottom: 32px">
+              <div class="rpt-section-title">향후 예측</div>
+              <div class="rpt-prophecy-box" id="rpt-prophecy">
+                <div class="ai-loading">분석 중...</div>
+              </div>
+            </div>
+
+            <div class="rpt-section">
+              <div class="rpt-section-title">학년별 예상 학업정서 추이</div>
+              <div class="rpt-prediction-graph-wrap" id="rpt-prediction-graph">
+                <div class="ai-loading">분석 중...</div>
+              </div>
+            </div>
+
+            <div class="page-footer">©지혜의산실</div>
+          </div>
+        </div>
+
+        <!-- PAGE 5: 조언 상세 -->
+        <div class="pdf-page" id="pdf-page-5">
+          <div class="page-inner">
+            <div class="rpt-page-header" style="justify-content: flex-end">
+              <span id="rpt-name-5" class="rpt-name-sm"></span>
+            </div>
+            <div class="rpt-divider"></div>
+
+            <div class="rpt-section" style="margin-bottom: 32px">
+              <div class="rpt-section-title">선행 및 자기주도성</div>
+              <div class="rpt-advice-box" id="rpt-academy-advice">
+                <div class="ai-loading">분석 중...</div>
+              </div>
+            </div>
+
+            <div class="rpt-section">
+              <div class="rpt-section-title">핵심 조언</div>
+              <div class="rpt-advice-box" id="rpt-advice">
+                <div class="ai-loading">분석 중...</div>
+              </div>
+            </div>
+
+            <div class="page-footer">©지혜의산실</div>
+          </div>
+        </div>
+      </div>
+      <!-- /#report-root -->
+    </section>
+
+    <!-- ═══ SCREEN 5: DONE (제출 완료) ═══ -->
+    <section id="screen-done" class="screen">
+      <div
+        class="container center-v"
+        style="text-align: center; padding: 60px 20px"
+      >
+        <div
+          style="
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 28px;
+            background: linear-gradient(135deg, #6366f1, #4f5fcf);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+          "
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h2
+          style="
+            font-size: 1.8rem;
+            color: var(--c-primary);
+            margin-bottom: 12px;
+          "
+        >
+          검사가 완료되었습니다.
+        </h2>
+        <p
+          style="
+            font-size: 1rem;
+            color: var(--c-muted);
+            line-height: 1.7;
+            margin-bottom: 36px;
+            word-break: keep-all;
+          "
+        >
+          레포트는 선생님께서 검토 후 전달해 드릴 예정입니다.
+        </p>
+        <button
+          id="btn-done-home"
+          class="btn btn-secondary"
+          style="min-width: 160px"
+        >
+          확인
+        </button>
+      </div>
+    </section>
+
+    <!-- jsPDF + html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const shareBtn = document.getElementById('share-link-btn');
+        if (shareBtn) {
+          shareBtn.addEventListener('click', () => {
+            const shareUrl = window.location.href;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+              const origText = shareBtn.textContent;
+              shareBtn.textContent = '링크가 복사되었습니다. 아이에게 전달해 주세요.';
+              shareBtn.style.color = '#22c55e';
+              setTimeout(() => {
+                shareBtn.textContent = origText;
+                shareBtn.style.color = '';
+              }, 2500);
+            });
+          });
+        }
+      });
+    </script>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
