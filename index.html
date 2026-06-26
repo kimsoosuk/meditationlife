@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내 마음 알아보기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ══ SCREEN 1: INTRO ══ -->
+  <section id="screen-intro" class="screen">
+    <div class="intro-inner">
+      <div class="intro-badge">내 마음 알아보기</div>
+      <h1 class="intro-title">나는 어떤 마음을<br>가지고 살고 있을까요?</h1>
+      <div class="intro-body">
+        <p>나는 어떤 마음을 가지고 살고 있는지,<br>
+          어떤 마음들이 나에게 스트레스를 주는지<br>
+          알아보기 위한 간단한 설문을 마련했습니다.</p>
+        <p>부담없이 각 문장을 읽었을 때 떠오르는 답을 해주시면<br>더욱 정확하게 내 마음을 알 수 있답니다.</p>
+        <p class="note">※ 약 50개의 문항으로 되어 있으며 10분 정도 소요됩니다.</p>
+      </div>
+      <div class="intro-scale-guide">
+        <p>다음의 문장을 읽고,</p>
+        <p>▶ <strong>매우 그러하다</strong> 생각되시면 <strong>5점</strong></p>
+        <p>▶ <strong>별로 그렇지않다</strong> 생각되시면 <strong>1점</strong></p>
+        <p>을 선택해주세요. 중간 정도의 마음이시면 2~4점 사이의 위치를 선택해주시면 됩니다.</p>
+      </div>
+      <button id="btn-start" class="btn btn-primary intro-start">설문 시작하기 →</button>
+    </div>
+  </section>
+
+  <!-- ══ SCREEN 2: SURVEY ══ -->
+  <section id="screen-survey" class="screen">
+    <div class="survey-header">
+      <div class="survey-header-inner">
+        <div class="progress-meta">
+          <span>내 마음 알아보기</span>
+          <span id="progress-text">0/47 완료</span>
+        </div>
+        <div class="progress-track">
+          <div id="progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="survey-body">
+      <div id="question-list"></div>
+      <div class="survey-nav">
+        <button id="btn-prev" class="btn btn-secondary" disabled>← 이전</button>
+        <button id="btn-next" class="btn btn-primary" disabled>다음 →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SCREEN 3: RESULT ══ -->
+  <section id="screen-result" class="screen">
+
+    <!-- 액션 바 -->
+    <div class="report-action-bar no-print">
+      <div class="container">
+        <span class="report-action-title">내 마음 알아보기 — 결과 레포트</span>
+        <div class="report-action-btns">
+          <button id="btn-restart" class="btn btn-secondary btn-sm">다시 하기</button>
+          <button id="btn-pdf" class="btn btn-primary btn-sm">PDF 저장</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 레포트 본문 -->
+    <div id="report-root">
+      <div class="pdf-page" id="pdf-page-1">
+        <div class="page-inner">
+
+          <!-- 헤더 -->
+          <h1 class="rpt-title">내 마음 알아보기</h1>
+          <p class="rpt-subtitle">나는 어디에 마음을 많이 쓰고 있는지, 어떤 분야에서 스트레스를 쉽게 받을 수 있는지, 나도 몰랐던 나의 마음을 알아보세요.</p>
+          <hr class="rpt-divider">
+
+          <!-- ① 스트레스 지수 -->
+          <div class="rpt-section">
+            <div class="rpt-section-title">나의 스트레스 지수</div>
+            <div class="stress-index-wrap">
+              <div class="stress-index-num" id="rpt-stress-num">—</div>
+              <div class="stress-index-right">
+                <div class="stress-gauge-track">
+                  <div class="stress-gauge-needle" id="rpt-gauge-needle" style="left:0%"></div>
+                </div>
+                <div class="stress-gauge-labels">
+                  <span>0</span><span>30</span><span>45</span><span>60</span><span>100</span>
+                </div>
+              </div>
+            </div>
+            <div class="stress-comment" id="rpt-overall-comment"></div>
+          </div>
+
+          <!-- ② 내 마음 속 스트레스 순위 -->
+          <div class="rpt-section">
+            <div class="rpt-section-title">내 마음 속 스트레스 순위</div>
+            <div class="rank-bar-list" id="rpt-rank-bars"></div>
+          </div>
+
+          <!-- ③ 나의 머릿속 + ④ Top3 (2열) -->
+          <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;">
+            <div style="flex:0 0 auto;">
+              <div class="rpt-section-title">나의 머릿속</div>
+              <div class="head-wrap" id="rpt-head-wrap">
+                <img id="rpt-head-img" src="head.png" alt="나의 머릿속" width="300">
+              </div>
+            </div>
+            <div style="flex:1;min-width:260px;">
+              <div class="rpt-section-title">이런 마음을 명상을 통해 빼볼까요?</div>
+              <div class="top3-cards" id="rpt-top3-cards"></div>
+            </div>
+          </div>
+
+          <div class="page-footer">Developed by 지혜의산실</div>
+        </div>
+      </div>
+    </div>
+    <!-- /#report-root -->
+
+  </section>
+
+  <!-- jsPDF + html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
