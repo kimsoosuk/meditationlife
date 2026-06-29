@@ -118,22 +118,6 @@ body {
   color: var(--c-accent);
   font-weight: 600;
 }
-.intro-scale-guide {
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-lg);
-  padding: 20px 24px;
-  margin-bottom: 36px;
-  text-align: left;
-}
-.intro-scale-guide p {
-  font-size: .9rem;
-  color: var(--c-muted);
-  line-height: 1.7;
-  margin-bottom: 6px;
-}
-.intro-scale-guide p:last-child { margin-bottom: 0; }
-.intro-scale-guide strong { color: var(--c-primary); }
 .intro-start { min-width: 180px; font-size: 1.05rem; padding: 14px 32px; }
 
 /* ══ SURVEY SCREEN ══ */
@@ -193,15 +177,20 @@ body {
   display: flex; justify-content: space-between;
   align-items: flex-start; position: relative; padding: 0 4%;
 }
+/* 연결선: 숫자(위) 아래의 원 중심을 지나도록 위치 */
 .q-linear-scale::before {
   content: ''; position: absolute;
-  top: 14px; left: 10%; right: 10%;
+  top: 40px; left: 10%; right: 10%;
   height: 2px; background: var(--c-border); z-index: 0;
 }
 .scale-option {
   display: flex; flex-direction: column;
-  align-items: center; gap: 10px;
-  cursor: pointer; z-index: 1; width: 56px;
+  align-items: center; gap: 8px;
+  cursor: pointer; z-index: 1; width: 60px;
+}
+.scale-num {
+  font-size: .82rem; font-weight: 700; color: var(--c-muted);
+  line-height: 16px; height: 16px;
 }
 .scale-circle {
   width: 30px; height: 30px; border-radius: 50%;
@@ -215,13 +204,27 @@ body {
 }
 .scale-label {
   font-size: .7rem; color: var(--c-muted); font-weight: 500;
-  text-align: center; line-height: 1.3; word-break: keep-all;
+  text-align: center; line-height: 1.3; word-break: keep-all; min-height: 1px;
 }
-.scale-label-end {
-  font-size: .68rem; color: var(--c-accent); font-weight: 700;
-  text-align: center; line-height: 1.3; word-break: keep-all;
-}
+.scale-option.selected .scale-num,
 .scale-option.selected .scale-label { color: var(--c-accent); font-weight: 700; }
+
+/* 설문 첫 화면 상단 안내 배너 */
+.survey-guide {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-left: 4px solid var(--c-accent);
+  border-radius: var(--r-md);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.survey-guide p {
+  font-size: .9rem; color: var(--c-muted);
+  line-height: 1.7; margin-bottom: 4px; word-break: keep-all;
+}
+.survey-guide p:last-child { margin-bottom: 0; }
+.survey-guide strong { color: var(--c-primary); }
 
 /* Nav */
 .survey-nav { display: flex; gap: 10px; justify-content: flex-end; }
@@ -297,9 +300,14 @@ body {
   transform: translateX(-50%); transition: left .6s cubic-bezier(.4,0,.2,1);
 }
 .stress-gauge-labels {
-  display: flex; justify-content: space-between;
+  position: relative; height: 14px;
   font-size: .68rem; color: var(--c-muted); font-weight: 600;
 }
+.stress-gauge-labels span {
+  position: absolute; transform: translateX(-50%);
+}
+.stress-gauge-labels span:first-child { transform: none; }
+.stress-gauge-labels span:last-child { transform: translateX(-100%); }
 .stress-comment {
   margin-top: 20px;
   background: var(--c-surface); border-left: 3px solid var(--c-accent);
@@ -329,25 +337,22 @@ body {
   text-align: right; flex-shrink: 0;
 }
 
-/* Head visualization */
+/* Head visualization — wrap는 이미지와 동일 크기 박스 (라벨 % 좌표가 이미지에 정확히 매핑) */
 .head-wrap {
-  position: relative; display: flex;
-  justify-content: center; align-items: flex-start;
+  position: relative;
+  width: 300px;
+  margin: 0 auto;
 }
 .head-wrap img {
-  width: 300px; height: auto; display: block; pointer-events: none;
+  width: 100%; height: auto; display: block; pointer-events: none;
 }
 .head-label {
   position: absolute;
-  font-weight: 800; color: var(--c-primary);
-  background: rgba(255,255,255,.82);
-  backdrop-filter: blur(4px);
-  border-radius: 100px;
-  padding: 4px 14px;
+  font-weight: 800;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,.1);
   pointer-events: none;
   line-height: 1.2;
+  text-shadow: 0 1px 3px rgba(255,255,255,.95), 0 0 6px rgba(255,255,255,.9);
 }
 
 /* Top3 meditation cards */
@@ -397,6 +402,7 @@ body {
   .question-item { padding: 24px 18px; }
   .q-text { font-size: 1rem; }
   .scale-option { width: 42px; }
-  .scale-label, .scale-label-end { font-size: .6rem; }
+  .scale-num { font-size: .72rem; }
+  .scale-label { font-size: .58rem; }
   .intro-title { font-size: 1.5rem; }
 }

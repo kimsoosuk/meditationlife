@@ -22,12 +22,6 @@
         <p>부담없이 각 문장을 읽었을 때 떠오르는 답을 해주시면<br>더욱 정확하게 내 마음을 알 수 있답니다.</p>
         <p class="note">※ 약 50개의 문항으로 되어 있으며 10분 정도 소요됩니다.</p>
       </div>
-      <div class="intro-scale-guide">
-        <p>다음의 문장을 읽고,</p>
-        <p>▶ <strong>매우 그러하다</strong> 생각되시면 <strong>5점</strong></p>
-        <p>▶ <strong>별로 그렇지않다</strong> 생각되시면 <strong>1점</strong></p>
-        <p>을 선택해주세요. 중간 정도의 마음이시면 2~4점 사이의 위치를 선택해주시면 됩니다.</p>
-      </div>
       <button id="btn-start" class="btn btn-primary intro-start">설문 시작하기 →</button>
     </div>
   </section>
@@ -46,6 +40,12 @@
       </div>
     </div>
     <div class="survey-body">
+      <div class="survey-guide">
+        <p>다음의 문장을 읽고,</p>
+        <p>▶ <strong>매우 그러하다</strong> 생각되시면 <strong>5점</strong></p>
+        <p>▶ <strong>전혀 그렇지 않다</strong> 생각되시면 <strong>1점</strong></p>
+        <p>을 선택해주세요. 중간 정도의 마음이시면 2~4점 사이의 위치를 선택해주시면 됩니다.</p>
+      </div>
       <div id="question-list"></div>
       <div class="survey-nav">
         <button id="btn-prev" class="btn btn-secondary" disabled>← 이전</button>
@@ -88,7 +88,11 @@
                   <div class="stress-gauge-needle" id="rpt-gauge-needle" style="left:0%"></div>
                 </div>
                 <div class="stress-gauge-labels">
-                  <span>0</span><span>30</span><span>45</span><span>60</span><span>100</span>
+                  <span style="left:0%">0</span>
+                  <span style="left:30%">30</span>
+                  <span style="left:45%">45</span>
+                  <span style="left:60%">60</span>
+                  <span style="left:100%">100</span>
                 </div>
               </div>
             </div>
