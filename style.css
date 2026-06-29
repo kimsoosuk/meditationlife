@@ -349,9 +349,9 @@ body {
 /* Top3 meditation cards */
 .top3-cards { display: flex; flex-direction: column; gap: 12px; }
 .top3-card {
-  background: var(--c-surface); border-radius: var(--r-lg);
-  border: 1px solid var(--c-border);
-  padding: 14px 18px; box-shadow: var(--shadow);
+  background: #eaf1fa; border-radius: var(--r-lg);
+  border: 1px solid #d2e0f0;
+  padding: 14px 18px;
   display: flex; gap: 20px; align-items: flex-start;
 }
 .top3-rank-badge {

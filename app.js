@@ -419,43 +419,40 @@ function renderReport(scores) {
   renderTop3Cards(ranked, weighted);
 }
 
-// 순위 막대: 단색(액센트) + 순위별 농도(1위 진함 → 아래로 연해짐)
-const BAR_RGB = '79,95,207'; // var(--c-accent) #4f5fcf
+// 순위별 파란 계열 단계색 (1위 진한 남색 → 9위 연한 하늘색), 원본 레포트와 동일 톤
+const RANK_COLORS = ['#1e3a5f','#27497a','#305b92','#3a6da9','#4a82bd','#6498cc','#85b0db','#a9c8e7','#cbddf0'];
+const rankColor = (i) => RANK_COLORS[Math.min(i, RANK_COLORS.length - 1)];
+
 function renderRankBars(ranked, weighted) {
   const el = document.getElementById('rpt-rank-bars');
   el.innerHTML = '';
-  const maxW = Math.max(...CATS.map(c => weighted[c]));
-  const n = ranked.length;
 
   ranked.forEach((cat, i) => {
     const score = Math.round(weighted[cat] * 100 * 10) / 10;
-    const barPct = maxW > 0 ? (weighted[cat] / maxW) * 100 : 0;
-    // 1위 op=1.0 → 마지막 op≈0.32 선형 감소
-    const op = 1 - (n > 1 ? i / (n - 1) : 0) * 0.68;
-    const fillColor = `rgba(${BAR_RGB},${op.toFixed(3)})`;
+    const barPct = Math.max(0, Math.min(100, score)); // 100점 만점 대비 실제 점수 비율
+    const color = rankColor(i);
     const row = document.createElement('div');
     row.className = 'rank-bar-row';
     row.innerHTML = `
       <span class="rank-bar-rank">${i + 1}</span>
       <span class="rank-bar-label">${cat}</span>
       <div class="rank-bar-track">
-        <div class="rank-bar-fill" style="width:${barPct}%;background:${fillColor}"></div>
+        <div class="rank-bar-fill" style="width:${barPct}%;background:${color}"></div>
       </div>
-      <span class="rank-bar-score" style="color:rgba(${BAR_RGB},${Math.max(op,0.6).toFixed(3)})">${score}</span>
+      <span class="rank-bar-score" style="color:#27497a">${score}</span>
     `;
     el.appendChild(row);
   });
 }
 
-/* 머리 SVG(viewBox 0 0 300 300) 의 뇌 lobe 칸 중심 좌표 + 허용 폭(maxW).
-   각 칸(ellipse #lobe-0..4)의 중앙에 단어를 1개씩 배치 → 항상 칸 안에 깔끔히 들어감.
-   순위순 크기 大→小. */
+/* 원본 라인아트(viewBox 0 0 740 759)의 뇌 lobe 개방 영역 중심 좌표 + 허용 폭(maxW).
+   원본 레포트의 단어 배치를 재현. 순위순 크기 大→小. */
 const HEAD_SLOTS = [
-  { x: 168, y: 128, maxW: 82, base: 30 }, // 1위 - 중앙 대형 lobe
-  { x: 160, y: 70,  maxW: 92, base: 24 }, // 2위 - 상단 긴 lobe
-  { x: 236, y: 118, maxW: 46, base: 22 }, // 3위 - 후두(우상) lobe
-  { x: 214, y: 182, maxW: 54, base: 20 }, // 4위 - 우하 lobe
-  { x: 128, y: 184, maxW: 68, base: 19 }, // 5위 - 하중앙 lobe
+  { x: 368, y: 292, maxW: 210, base: 66 }, // 1위 - 중앙 대형 lobe
+  { x: 322, y: 120, maxW: 300, base: 52 }, // 2위 - 상단 긴 lobe
+  { x: 612, y: 250, maxW: 130, base: 44 }, // 3위 - 우상(후두) lobe
+  { x: 588, y: 418, maxW: 140, base: 42 }, // 4위 - 우하 lobe
+  { x: 398, y: 436, maxW: 150, base: 40 }, // 5위 - 하중앙 lobe
 ];
 
 function renderHeadViz(ranked, weighted) {
@@ -470,7 +467,7 @@ function renderHeadViz(ranked, weighted) {
     const slot = HEAD_SLOTS[i];
     // 칸 폭에 맞춰 폰트 자동 축소 (한글 1글자 ≈ font-size 폭으로 가정)
     const fit = slot.maxW / (cat.length * 1.02);
-    const fontSize = Math.max(11, Math.min(slot.base, fit));
+    const fontSize = Math.max(22, Math.min(slot.base, fit));
 
     const t = document.createElementNS(NS, 'text');
     t.setAttribute('x', slot.x);
@@ -480,7 +477,7 @@ function renderHeadViz(ranked, weighted) {
     t.setAttribute('font-size', fontSize);
     t.setAttribute('font-weight', '800');
     t.setAttribute('font-family', "'Noto Sans KR', sans-serif");
-    t.setAttribute('fill', scoreToColor(score)); // 점수색
+    t.setAttribute('fill', rankColor(i)); // 순위별 파란 계열 (막대와 통일)
     t.textContent = cat;
     layer.appendChild(t);
   });
@@ -492,14 +489,14 @@ function renderTop3Cards(ranked, weighted) {
   ranked.slice(0, 3).forEach((cat, i) => {
     const catScore100 = Math.round(weighted[cat] * 100);
     const { band, text } = lookupCategoryComment(cat, catScore100);
-    const color = scoreToColor(catScore100); // 점수에 따른 색 (초록→빨강)
+    const color = rankColor(i); // 순위별 파란 계열 (막대·머릿속과 통일)
     const card = document.createElement('div');
     card.className = 'top3-card';
     card.innerHTML = `
       <div class="top3-rank-badge" style="background:${color}">${i + 1}</div>
       <div class="top3-card-body">
         <div class="top3-cat-name">${cat}</div>
-        <span class="top3-band-tag" style="background:${color};color:#fff;opacity:.92">${band} (${catScore100}점)</span>
+        <span class="top3-band-tag" style="background:${color};color:#fff;opacity:.95">${band} (${catScore100}점)</span>
         <p class="top3-comment">${text}</p>
       </div>
     `;
