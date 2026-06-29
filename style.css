@@ -337,22 +337,13 @@ body {
   text-align: right; flex-shrink: 0;
 }
 
-/* Head visualization — wrap는 이미지와 동일 크기 박스 (라벨 % 좌표가 이미지에 정확히 매핑) */
+/* Head visualization — 인라인 SVG (텍스트가 같은 좌표계라 정확히 매핑) */
 .head-wrap {
-  position: relative;
   width: 300px;
   margin: 0 auto;
 }
-.head-wrap img {
-  width: 100%; height: auto; display: block; pointer-events: none;
-}
-.head-label {
-  position: absolute;
-  font-weight: 800;
-  white-space: nowrap;
-  pointer-events: none;
-  line-height: 1.2;
-  text-shadow: 0 1px 3px rgba(255,255,255,.95), 0 0 6px rgba(255,255,255,.9);
+.head-wrap svg {
+  width: 100%; height: auto; display: block;
 }
 
 /* Top3 meditation cards */

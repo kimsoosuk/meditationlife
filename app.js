@@ -200,6 +200,28 @@ function lookupCategoryComment(cat, catScore100) {
   return entry;
 }
 
+/* 점수(0~100, 가중점수×100) → 색상: 낮으면 초록 … 높으면 빨강.
+   밴드 경계(0/30/45/60)에 맞춰 보간. */
+function scoreToColor(score) {
+  const stops = [
+    { v: 0,  c: [34, 197, 94]  }, // 초록 #22c55e
+    { v: 30, c: [234, 179, 8]  }, // 노랑 #eab308
+    { v: 45, c: [249, 115, 22] }, // 주황 #f97316
+    { v: 60, c: [239, 68, 68]  }, // 빨강 #ef4444
+  ];
+  if (score <= stops[0].v) return rgb(stops[0].c);
+  if (score >= stops[stops.length - 1].v) return rgb(stops[stops.length - 1].c);
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = stops[i], b = stops[i + 1];
+    if (score >= a.v && score <= b.v) {
+      const t = (score - a.v) / (b.v - a.v);
+      return rgb(a.c.map((ch, k) => Math.round(ch + (b.c[k] - ch) * t)));
+    }
+  }
+  return rgb(stops[stops.length - 1].c);
+}
+function rgb([r, g, b]) { return `rgb(${r}, ${g}, ${b})`; }
+
 /* ══ 상태 ══ */
 const state = {
   answers: {},    // { 0: 1..5, ... }
@@ -237,7 +259,7 @@ document.getElementById('btn-start').addEventListener('click', () => {
 /* ══ 설문 렌더 ══
    pos = 표시 위치(0~46, 셔플된 순서), q.id = 고정 문항 id(답안 키).
    척도 라벨: 1=전혀 그렇지 않다, 3=보통이다, 5=매우 그러하다 (2·4는 숫자만). */
-const SCALE_LABELS = { 1: '매우 그렇지 않다', 3: '보통이다', 5: '매우 그러하다' };
+const SCALE_LABELS = { 1: '매우 아니다', 2: '아니다', 3: '보통이다', 4: '그렇다', 5: '매우 그렇다' };
 
 function renderPage(pageIdx) {
   state.currentPage = pageIdx;
@@ -404,7 +426,7 @@ function renderReport(scores) {
   renderRankBars(ranked, weighted);
 
   // ③ 머릿속
-  renderHeadViz(ranked, catNorm);
+  renderHeadViz(ranked, weighted);
 
   // ④ Top3 카드
   renderTop3Cards(ranked, weighted);
@@ -438,54 +460,39 @@ function renderRankBars(ranked, weighted) {
   });
 }
 
-/* 머리 그림(740×759, 좌향) 두뇌 lobe 내부 상위 5개 슬롯 좌표 (이미지 박스 기준 %)
-   좌표는 head-wrap(=이미지 크기 박스) 기준. 순위순 크기 大→小. */
+/* 머리 SVG(viewBox 0 0 740 759) 두뇌 lobe 내부 상위 5개 슬롯 좌표 (SVG 좌표계, 좌상단 원점)
+   SVG 텍스트로 그려 좌표가 그림과 정확히 일치. 순위순 크기 大→小. */
 const HEAD_SLOTS = [
-  { x: 44, y: 35, size: 1.5 },  // 1위 - 중앙 대형 lobe
-  { x: 40, y: 16, size: 1.2 },  // 2위 - 상단 긴 lobe
-  { x: 80, y: 27, size: 1.0 },  // 3위 - 후두(우측) lobe
-  { x: 70, y: 47, size: 0.85 }, // 4위 - 우하 lobe
-  { x: 48, y: 57, size: 0.72 }, // 5위 - 하중앙 lobe
+  { x: 355, y: 300, size: 74 }, // 1위 - 중앙 대형 lobe
+  { x: 330, y: 150, size: 60 }, // 2위 - 상단 긴 lobe
+  { x: 600, y: 235, size: 50 }, // 3위 - 후두(우측) lobe
+  { x: 560, y: 390, size: 44 }, // 4위 - 우하 lobe
+  { x: 380, y: 470, size: 38 }, // 5위 - 하중앙 lobe
 ];
 
-function renderHeadViz(ranked, catNorm) {
-  const wrap = document.getElementById('rpt-head-wrap');
-  // remove old labels
-  wrap.querySelectorAll('.head-label').forEach(l => l.remove());
+function renderHeadViz(ranked, weighted) {
+  const layer = document.getElementById('rpt-head-labels');
+  if (!layer) return;
+  layer.innerHTML = '';
+  const NS = 'http://www.w3.org/2000/svg';
 
   ranked.slice(0, 5).forEach((cat, i) => {
-    if (catNorm[cat] < 0.01) return; // skip zero-score
+    const score = weighted[cat] * 100;
+    if (score < 0.5) return; // 거의 0이면 생략
     const slot = HEAD_SLOTS[i];
-    const label = document.createElement('div');
-    label.className = 'head-label';
-    const fontSize = Math.round(12 * slot.size);
-    label.style.cssText = `
-      left: ${slot.x}%;
-      top: ${slot.y}%;
-      font-size: ${fontSize}px;
-      color: ${CAT_COLOR[cat]};
-      transform: translate(-50%, -50%);
-    `;
-    label.textContent = cat;
-    wrap.appendChild(label);
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', slot.x);
+    t.setAttribute('y', slot.y);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('dominant-baseline', 'central');
+    t.setAttribute('font-size', slot.size);
+    t.setAttribute('font-weight', '800');
+    t.setAttribute('font-family', "'Noto Sans KR', sans-serif");
+    t.setAttribute('fill', scoreToColor(score)); // 점수에 따른 색
+    t.textContent = cat;
+    layer.appendChild(t);
   });
 }
-
-// Re-render head labels after image load / resize
-window.addEventListener('resize', () => {
-  if (state.scores) {
-    const { catNorm, weighted } = state.scores;
-    const ranked = rankCategories(catNorm);
-    renderHeadViz(ranked, catNorm);
-  }
-});
-document.getElementById('rpt-head-img').addEventListener('load', () => {
-  if (state.scores) {
-    const { catNorm, weighted } = state.scores;
-    const ranked = rankCategories(catNorm);
-    renderHeadViz(ranked, catNorm);
-  }
-});
 
 function renderTop3Cards(ranked, weighted) {
   const el = document.getElementById('rpt-top3-cards');
@@ -493,14 +500,14 @@ function renderTop3Cards(ranked, weighted) {
   ranked.slice(0, 3).forEach((cat, i) => {
     const catScore100 = Math.round(weighted[cat] * 100);
     const { band, text } = lookupCategoryComment(cat, catScore100);
-    const color = CAT_COLOR[cat];
+    const color = scoreToColor(catScore100); // 점수에 따른 색 (초록→빨강)
     const card = document.createElement('div');
     card.className = 'top3-card';
     card.innerHTML = `
       <div class="top3-rank-badge" style="background:${color}">${i + 1}</div>
       <div class="top3-card-body">
         <div class="top3-cat-name">${cat}</div>
-        <span class="top3-band-tag" style="background:${color}18;color:${color}">${band} (${catScore100}점)</span>
+        <span class="top3-band-tag" style="background:${color};color:#fff;opacity:.92">${band} (${catScore100}점)</span>
         <p class="top3-comment">${text}</p>
       </div>
     `;
