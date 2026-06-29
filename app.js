@@ -209,16 +209,10 @@ const state = {
 
 const QUESTIONS_PER_PAGE = 10;
 
-/* 표시 순서 셔플 (세션당 1회). 채점은 q.id/q.cat 기준이라 순서와 무관. */
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-const displayOrder = shuffle(QUESTIONS);
+/* 표시 순서: 한 번 섞어 고정한 순서(매번 열 때 동일). 채점은 q.id/q.cat 기준이라 순서와 무관. */
+const DISPLAY_ORDER_IDS = [46,34,37,6,4,43,18,44,39,11,25,23,7,20,21,27,33,9,22,41,12,1,42,2,3,17,8,16,45,36,10,32,31,38,29,26,24,13,28,15,5,30,35,40,0,14,19];
+const QBYID = Object.fromEntries(QUESTIONS.map(q => [q.id, q]));
+const displayOrder = DISPLAY_ORDER_IDS.map(id => QBYID[id]);
 
 /* ══ 화면 전환 ══ */
 const screens = {
@@ -243,7 +237,7 @@ document.getElementById('btn-start').addEventListener('click', () => {
 /* ══ 설문 렌더 ══
    pos = 표시 위치(0~46, 셔플된 순서), q.id = 고정 문항 id(답안 키).
    척도 라벨: 1=전혀 그렇지 않다, 3=보통이다, 5=매우 그러하다 (2·4는 숫자만). */
-const SCALE_LABELS = { 1: '전혀 그렇지 않다', 3: '보통이다', 5: '매우 그러하다' };
+const SCALE_LABELS = { 1: '매우 그렇지 않다', 3: '보통이다', 5: '매우 그러하다' };
 
 function renderPage(pageIdx) {
   state.currentPage = pageIdx;

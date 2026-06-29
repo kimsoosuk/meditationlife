@@ -110,7 +110,7 @@ body {
   color: var(--c-muted);
   word-break: keep-all;
   margin-bottom: 32px;
-  text-align: left;
+  text-align: center;
 }
 .intro-body p { margin-bottom: 14px; }
 .intro-body .note {
@@ -215,8 +215,8 @@ body {
   border: 1px solid var(--c-border);
   border-left: 4px solid var(--c-accent);
   border-radius: var(--r-md);
-  padding: 20px 24px;
-  margin-bottom: 24px;
+  padding: 24px 28px;
+  margin-bottom: 40px;
   box-shadow: var(--shadow);
 }
 .survey-guide p {
