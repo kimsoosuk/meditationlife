@@ -54,19 +54,6 @@ const QUESTIONS = [
 /* 카테고리 (순위·타이브레이크 순서) — 스트레스는 별도 집계 */
 const CATS = ['돈','사랑','명예','자존심','가족','미래','열등감','건강','인간관계'];
 
-/* 카테고리 색상 */
-const CAT_COLOR = {
-  '돈':      '#4f5fcf',
-  '사랑':    '#ec4899',
-  '명예':    '#a855f7',
-  '자존심':  '#f97316',
-  '가족':    '#22c55e',
-  '미래':    '#3b82f6',
-  '열등감':  '#ef4444',
-  '건강':    '#14b8a6',
-  '인간관계':'#eab308',
-};
-
 /* ══ 종합 멘트 (기존, 4구간) ══ */
 const OVERALL_COMMENTS = [
   { min: 0,  text: '놀라워요! 마음이 깨끗하고 잔잔하여 스트레스를 쉽게 받지 않으시겠군요. 이미 맑은 나의 마음. 빼기 명상으로 항상 투명해지자고요!' },
@@ -460,14 +447,15 @@ function renderRankBars(ranked, weighted) {
   });
 }
 
-/* 머리 SVG(viewBox 0 0 740 759) 두뇌 lobe 내부 상위 5개 슬롯 좌표 (SVG 좌표계, 좌상단 원점)
-   SVG 텍스트로 그려 좌표가 그림과 정확히 일치. 순위순 크기 大→小. */
+/* 머리 SVG(viewBox 0 0 300 300) 의 뇌 lobe 칸 중심 좌표 + 허용 폭(maxW).
+   각 칸(ellipse #lobe-0..4)의 중앙에 단어를 1개씩 배치 → 항상 칸 안에 깔끔히 들어감.
+   순위순 크기 大→小. */
 const HEAD_SLOTS = [
-  { x: 355, y: 330, size: 70 }, // 1위 - 중앙 대형 lobe
-  { x: 280, y: 220, size: 46 }, // 2위 - 전두엽(좌상단)
-  { x: 520, y: 220, size: 44 }, // 3위 - 후두(우상단)
-  { x: 500, y: 370, size: 40 }, // 4위 - 우하단 영역
-  { x: 360, y: 440, size: 36 }, // 5위 - 하단 중앙
+  { x: 168, y: 128, maxW: 82, base: 30 }, // 1위 - 중앙 대형 lobe
+  { x: 160, y: 70,  maxW: 92, base: 24 }, // 2위 - 상단 긴 lobe
+  { x: 236, y: 118, maxW: 46, base: 22 }, // 3위 - 후두(우상) lobe
+  { x: 214, y: 182, maxW: 54, base: 20 }, // 4위 - 우하 lobe
+  { x: 128, y: 184, maxW: 68, base: 19 }, // 5위 - 하중앙 lobe
 ];
 
 function renderHeadViz(ranked, weighted) {
@@ -478,18 +466,11 @@ function renderHeadViz(ranked, weighted) {
 
   ranked.slice(0, 5).forEach((cat, i) => {
     const score = weighted[cat] * 100;
-    if (score < 0.5) return; // 거의 0이면 생략
+    if (score < 0.5) return; // 거의 0이면 해당 칸은 비움
     const slot = HEAD_SLOTS[i];
-    
-    // 글자 수에 따른 동적 폰트 크기 조율
-    let fontSize = slot.size;
-    if (cat.length === 2) {
-      fontSize = slot.size * 0.9;
-    } else if (cat.length === 3) {
-      fontSize = slot.size * 0.75;
-    } else if (cat.length >= 4) {
-      fontSize = slot.size * 0.6;
-    }
+    // 칸 폭에 맞춰 폰트 자동 축소 (한글 1글자 ≈ font-size 폭으로 가정)
+    const fit = slot.maxW / (cat.length * 1.02);
+    const fontSize = Math.max(11, Math.min(slot.base, fit));
 
     const t = document.createElementNS(NS, 'text');
     t.setAttribute('x', slot.x);
@@ -499,7 +480,7 @@ function renderHeadViz(ranked, weighted) {
     t.setAttribute('font-size', fontSize);
     t.setAttribute('font-weight', '800');
     t.setAttribute('font-family', "'Noto Sans KR', sans-serif");
-    t.setAttribute('fill', scoreToColor(score)); // 점수에 따른 색
+    t.setAttribute('fill', scoreToColor(score)); // 점수색
     t.textContent = cat;
     layer.appendChild(t);
   });
