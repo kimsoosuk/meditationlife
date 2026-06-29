@@ -463,11 +463,11 @@ function renderRankBars(ranked, weighted) {
 /* 머리 SVG(viewBox 0 0 740 759) 두뇌 lobe 내부 상위 5개 슬롯 좌표 (SVG 좌표계, 좌상단 원점)
    SVG 텍스트로 그려 좌표가 그림과 정확히 일치. 순위순 크기 大→小. */
 const HEAD_SLOTS = [
-  { x: 355, y: 300, size: 74 }, // 1위 - 중앙 대형 lobe
-  { x: 330, y: 150, size: 60 }, // 2위 - 상단 긴 lobe
-  { x: 600, y: 235, size: 50 }, // 3위 - 후두(우측) lobe
-  { x: 560, y: 390, size: 44 }, // 4위 - 우하 lobe
-  { x: 380, y: 470, size: 38 }, // 5위 - 하중앙 lobe
+  { x: 355, y: 330, size: 70 }, // 1위 - 중앙 대형 lobe
+  { x: 280, y: 220, size: 46 }, // 2위 - 전두엽(좌상단)
+  { x: 520, y: 220, size: 44 }, // 3위 - 후두(우상단)
+  { x: 500, y: 370, size: 40 }, // 4위 - 우하단 영역
+  { x: 360, y: 440, size: 36 }, // 5위 - 하단 중앙
 ];
 
 function renderHeadViz(ranked, weighted) {
@@ -480,12 +480,23 @@ function renderHeadViz(ranked, weighted) {
     const score = weighted[cat] * 100;
     if (score < 0.5) return; // 거의 0이면 생략
     const slot = HEAD_SLOTS[i];
+    
+    // 글자 수에 따른 동적 폰트 크기 조율
+    let fontSize = slot.size;
+    if (cat.length === 2) {
+      fontSize = slot.size * 0.9;
+    } else if (cat.length === 3) {
+      fontSize = slot.size * 0.75;
+    } else if (cat.length >= 4) {
+      fontSize = slot.size * 0.6;
+    }
+
     const t = document.createElementNS(NS, 'text');
     t.setAttribute('x', slot.x);
     t.setAttribute('y', slot.y);
     t.setAttribute('text-anchor', 'middle');
     t.setAttribute('dominant-baseline', 'central');
-    t.setAttribute('font-size', slot.size);
+    t.setAttribute('font-size', fontSize);
     t.setAttribute('font-weight', '800');
     t.setAttribute('font-family', "'Noto Sans KR', sans-serif");
     t.setAttribute('fill', scoreToColor(score)); // 점수에 따른 색
@@ -527,16 +538,31 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
     const A4W = 210, A4H = 297;
     const pages = document.querySelectorAll('.pdf-page');
     for (let i = 0; i < pages.length; i++) {
-      const canvas = await html2canvas(pages[i], { scale: 2, useCORS: true, backgroundColor: '#fdfcf9' });
+      const canvas = await html2canvas(pages[i], { 
+        scale: 2, 
+        useCORS: true, 
+        backgroundColor: '#fdfcf9',
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 1024
+      });
       const imgData = canvas.toDataURL('image/jpeg', 0.92);
       const ratio = canvas.height / canvas.width;
       const imgW = A4W, imgH = imgW * ratio;
       if (i > 0) pdf.addPage();
-      if (imgH <= A4H) pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
-      else pdf.addImage(imgData, 'JPEG', 0, 0, imgW * (A4H / imgH), A4H);
+      
+      // 만약 세로 비율이 A4 규격보다 길 경우 가로 너비를 줄이고 수평 가운데 정렬
+      if (imgH <= A4H) {
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
+      } else {
+        const scaledW = imgW * (A4H / imgH);
+        const xOffset = (A4W - scaledW) / 2;
+        pdf.addImage(imgData, 'JPEG', xOffset, 0, scaledW, A4H);
+      }
     }
     pdf.save('내마음알아보기_결과.pdf');
   } catch(e) {
+    console.error(e);
     alert('PDF 생성 중 오류가 발생했습니다.');
   } finally {
     document.body.classList.remove('pdf-capture');
