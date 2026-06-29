@@ -447,12 +447,15 @@ function renderRankBars(ranked, weighted) {
 
 /* 원본 라인아트(viewBox 0 0 740 759)의 뇌 lobe 개방 영역 중심 좌표 + 허용 폭(maxW).
    원본 레포트의 단어 배치를 재현. 순위순 크기 大→小. */
+/* 원본 라인아트(viewBox 740×759)의 각 fold(lobe) 내부에 맞춘 좌표.
+   center(x,y) + 가용 폭(maxW)·높이(maxH)를 lobe bbox에서 산출. 순위순 lobe 매핑:
+   1위→중앙 / 2위→상단 / 3위→우상 / 4위→우하 / 5위→하중앙. */
 const HEAD_SLOTS = [
-  { x: 345, y: 255, maxW: 200, base: 66 }, // 1위 - 중앙 대형 lobe
-  { x: 325, y: 110, maxW: 210, base: 50 }, // 2위 - 상단 lobe
-  { x: 606, y: 186, maxW: 132, base: 46 }, // 3위 - 우상 lobe
-  { x: 600, y: 376, maxW: 138, base: 44 }, // 4위 - 우하 lobe
-  { x: 360, y: 410, maxW: 200, base: 46 }, // 5위 - 하중앙 lobe
+  { x: 402, y: 286, maxW: 230, maxH: 150, base: 64 }, // 1위 - 중앙 lobe
+  { x: 330, y: 122, maxW: 230, maxH: 86,  base: 50 }, // 2위 - 상단 lobe
+  { x: 611, y: 214, maxW: 122, maxH: 130, base: 48 }, // 3위 - 우상 lobe
+  { x: 603, y: 430, maxW: 120, maxH: 74,  base: 44 }, // 4위 - 우하 lobe
+  { x: 405, y: 437, maxW: 124, maxH: 56,  base: 44 }, // 5위 - 하중앙 lobe
 ];
 
 function renderHeadViz(ranked, weighted) {
@@ -465,9 +468,9 @@ function renderHeadViz(ranked, weighted) {
     const score = weighted[cat] * 100;
     if (score < 0.5) return; // 거의 0이면 해당 칸은 비움
     const slot = HEAD_SLOTS[i];
-    // 칸 폭에 맞춰 폰트 자동 축소 (한글 1글자 ≈ font-size 폭으로 가정)
-    const fit = slot.maxW / (cat.length * 1.02);
-    const fontSize = Math.max(22, Math.min(slot.base, fit));
+    // lobe 내부 폭·높이에 모두 맞춰 폰트 자동 축소 (한글 1글자 ≈ font-size 폭으로 가정)
+    const fitW = slot.maxW / (cat.length * 1.02);
+    const fontSize = Math.max(20, Math.min(slot.base, slot.maxH, fitW));
 
     const t = document.createElementNS(NS, 'text');
     t.setAttribute('x', slot.x);
