@@ -448,11 +448,11 @@ function renderRankBars(ranked, weighted) {
 /* 원본 라인아트(viewBox 0 0 740 759)의 뇌 lobe 개방 영역 중심 좌표 + 허용 폭(maxW).
    원본 레포트의 단어 배치를 재현. 순위순 크기 大→小. */
 const HEAD_SLOTS = [
-  { x: 368, y: 292, maxW: 210, base: 66 }, // 1위 - 중앙 대형 lobe
-  { x: 322, y: 120, maxW: 300, base: 52 }, // 2위 - 상단 긴 lobe
-  { x: 612, y: 250, maxW: 130, base: 44 }, // 3위 - 우상(후두) lobe
-  { x: 588, y: 418, maxW: 140, base: 42 }, // 4위 - 우하 lobe
-  { x: 398, y: 436, maxW: 150, base: 40 }, // 5위 - 하중앙 lobe
+  { x: 345, y: 255, maxW: 200, base: 66 }, // 1위 - 중앙 대형 lobe
+  { x: 325, y: 110, maxW: 210, base: 50 }, // 2위 - 상단 lobe
+  { x: 606, y: 186, maxW: 132, base: 46 }, // 3위 - 우상 lobe
+  { x: 600, y: 376, maxW: 138, base: 44 }, // 4위 - 우하 lobe
+  { x: 360, y: 410, maxW: 200, base: 46 }, // 5위 - 하중앙 lobe
 ];
 
 function renderHeadViz(ranked, weighted) {
