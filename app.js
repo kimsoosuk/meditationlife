@@ -167,7 +167,7 @@ function rankCategories(catNorm) {
 function calcStressIndex(ranked, weighted) {
   const top3 = ranked.slice(0, 3);
   const avg = top3.reduce((s, c) => s + weighted[c], 0) / 3;
-  return Math.round(avg * 100 * 100) / 100; // round to 2dp
+  return Math.round(avg * 100); // round to integer
 }
 
 function lookupOverallComment(index) {
@@ -214,6 +214,20 @@ const state = {
   answers: {},    // { 0: 1..5, ... }
   currentPage: 0,
   scores: null,
+  isSample: false,
+};
+
+const SAMPLE_ANSWERS = {
+  0: 2, 1: 1, 2: 3, 3: 2, 4: 2,
+  5: 3, 6: 3, 7: 4, 8: 3, 9: 2,
+  10: 2, 11: 3, 12: 3, 13: 2, 14: 2,
+  15: 4, 16: 5, 17: 4, 18: 4, 19: 3,
+  20: 3, 21: 2, 22: 4, 23: 3, 24: 2,
+  25: 4, 26: 4, 27: 5, 28: 4, 29: 4,
+  30: 2, 31: 3, 32: 2, 33: 3, 34: 2,
+  35: 1, 36: 2, 37: 2, 38: 2, 39: 1,
+  40: 5, 41: 5, 42: 4, 43: 5, 44: 4,
+  45: 4, 46: 4
 };
 
 const QUESTIONS_PER_PAGE = 10;
@@ -238,9 +252,18 @@ function showScreen(name) {
 
 /* ══ 인트로 ══ */
 document.getElementById('btn-start').addEventListener('click', () => {
+  state.isSample = false;
   renderPage(0);
   showScreen('survey');
   updateProgress();
+});
+
+document.getElementById('btn-sample').addEventListener('click', () => {
+  state.isSample = true;
+  state.answers = Object.assign({}, SAMPLE_ANSWERS);
+  state.scores = calcScores(state.answers);
+  renderReport(state.scores);
+  showScreen('result');
 });
 
 /* ══ 설문 렌더 ══
@@ -403,11 +426,44 @@ function renderReport(scores) {
   const overallComment = lookupOverallComment(stressIdx);
 
   // ① 스트레스 지수
-  document.getElementById('rpt-stress-num').textContent = stressIdx.toFixed(1);
+  document.getElementById('rpt-stress-num').textContent = Math.round(stressIdx);
+
+  // 5단계 스트레스 레벨 바인딩
+  const levelEl = document.getElementById('rpt-stress-level');
+  if (levelEl) {
+    let levelName = '보통';
+    if (stressIdx < 20) levelName = '매우 낮음';
+    else if (stressIdx < 40) levelName = '낮음';
+    else if (stressIdx < 60) levelName = '보통';
+    else if (stressIdx < 80) levelName = '높음';
+    else levelName = '매우 높음';
+    levelEl.textContent = levelName;
+    
+    // 점수 텍스트 색상과 통일 (#2b3b9a)
+    const badgeColor = '#2b3b9a';
+    levelEl.style.borderColor = badgeColor;
+    levelEl.style.borderStyle = 'solid';
+    levelEl.style.borderWidth = '1.5px';
+    levelEl.style.color = badgeColor;
+  }
+
   // gauge needle: 0→0%, 100→100%
   const needlePct = Math.min(100, Math.max(0, stressIdx));
   document.getElementById('rpt-gauge-needle').style.left = needlePct + '%';
   document.getElementById('rpt-overall-comment').textContent = overallComment;
+
+  // 샘플 표시 변경
+  const actionTitle = document.querySelector('.report-action-title');
+  const reportHeading = document.querySelector('.rpt-title');
+  if (actionTitle && reportHeading) {
+    if (state.isSample) {
+      actionTitle.textContent = '내 마음 알아보기 — 샘플 결과 레포트';
+      reportHeading.textContent = '내 마음 알아보기 (샘플)';
+    } else {
+      actionTitle.textContent = '내 마음 알아보기 — 결과 레포트';
+      reportHeading.textContent = '내 마음 알아보기';
+    }
+  }
 
   // ② 순위 막대
   renderRankBars(ranked, weighted);
@@ -419,8 +475,8 @@ function renderReport(scores) {
   renderTop3Cards(ranked, weighted);
 }
 
-// 순위별 파란 계열 단계색 (1위 진한 남색 → 9위 연한 하늘색), 원본 레포트와 동일 톤
-const RANK_COLORS = ['#1e3a5f', '#27497a', '#305b92', '#3a6da9', '#4a82bd', '#6498cc', '#85b0db', '#a9c8e7', '#cbddf0'];
+// 순위별 파란 계열 단계색 (가장 연한 9위 색상을 기존 4위 색상인 #759ad7에 맞춘 부드러운 그라데이션)
+const RANK_COLORS = ['#4a6ca3', '#5072aa', '#5677b0', '#5b7db7', '#6182bd', '#6788c4', '#6c8dca', '#7293d1', '#759ad7'];
 const rankColor = (i) => RANK_COLORS[Math.min(i, RANK_COLORS.length - 1)];
 
 function renderRankBars(ranked, weighted) {
@@ -428,18 +484,17 @@ function renderRankBars(ranked, weighted) {
   el.innerHTML = '';
 
   ranked.forEach((cat, i) => {
-    const score = Math.round(weighted[cat] * 100 * 10) / 10;
+    const score = Math.round(weighted[cat] * 100);
     const barPct = Math.max(0, Math.min(100, score)); // 100점 만점 대비 실제 점수 비율
     const color = rankColor(i);
     const row = document.createElement('div');
     row.className = 'rank-bar-row';
     row.innerHTML = `
-      <span class="rank-bar-rank">${i + 1}</span>
       <span class="rank-bar-label">${cat}</span>
       <div class="rank-bar-track">
         <div class="rank-bar-fill" style="width:${barPct}%;background:${color}"></div>
       </div>
-      <span class="rank-bar-score" style="color:#27497a">${score}</span>
+      <span class="rank-bar-score">${score}</span>
     `;
     el.appendChild(row);
   });
@@ -480,7 +535,7 @@ function renderHeadViz(ranked, weighted) {
     t.setAttribute('font-size', fontSize);
     t.setAttribute('font-weight', '800');
     t.setAttribute('font-family', "'Noto Sans KR', sans-serif");
-    t.setAttribute('fill', rankColor(i)); // 순위별 파란 계열 (막대와 통일)
+    t.setAttribute('fill', 'var(--c-primary)'); // 머릿속 글자 색은 --c-primary 고정
     t.textContent = cat;
     layer.appendChild(t);
   });
@@ -496,12 +551,12 @@ function renderTop3Cards(ranked, weighted) {
     const card = document.createElement('div');
     card.className = 'top3-card';
     card.innerHTML = `
-      <div class="top3-rank-badge" style="background:${color}">${i + 1}</div>
-      <div class="top3-card-body">
+      <div class="top3-card-header">
+        <div class="top3-rank-badge" style="background:${color}">${i + 1}</div>
         <div class="top3-cat-name">${cat}</div>
-        <span class="top3-band-tag" style="background:${color};color:#fff;opacity:.95">${band} (${catScore100}점)</span>
-        <p class="top3-comment">${text}</p>
+        <span class="top3-band-tag" style="border:1.5px solid ${color};color:${color};background:transparent;">${band} (${catScore100}점)</span>
       </div>
+      <p class="top3-comment">${text}</p>
     `;
     el.appendChild(card);
   });
@@ -525,7 +580,7 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
         backgroundColor: '#fdfcf9',
         scrollX: 0,
         scrollY: 0,
-        windowWidth: 1024
+        windowWidth: 1280
       });
       const imgData = canvas.toDataURL('image/jpeg', 0.92);
       const ratio = canvas.height / canvas.width;
@@ -556,6 +611,7 @@ document.getElementById('btn-restart').addEventListener('click', () => {
   state.answers = {};
   state.scores = null;
   state.currentPage = 0;
+  state.isSample = false;
   showScreen('intro');
 });
 
