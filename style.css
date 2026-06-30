@@ -192,7 +192,7 @@ body {
 }
 #progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--c-accent), var(--c-accent2));
+  background: var(--c-accent);
   border-radius: 100px; transition: width .35s ease;
 }
 .survey-body { padding: 36px 20px 100px; max-width: 680px; margin: 0 auto; }
@@ -560,6 +560,7 @@ body.pdf-capture .head-wrap {
 
 @media (max-width: 680px) {
   #screen-result { background: var(--rpt-bg); padding-bottom: 80px; }
+  .intro-inner { padding: 40px 24px; }
   .pdf-page { width: 100%; margin: 0; border-radius: 0; box-shadow: none; }
   .page-inner { padding: 32px 20px; }
   .stress-index-wrap { flex-direction: column; gap: 16px; }

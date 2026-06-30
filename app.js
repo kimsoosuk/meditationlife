@@ -214,20 +214,6 @@ const state = {
   answers: {},    // { 0: 1..5, ... }
   currentPage: 0,
   scores: null,
-  isSample: false,
-};
-
-const SAMPLE_ANSWERS = {
-  0: 2, 1: 1, 2: 3, 3: 2, 4: 2,
-  5: 3, 6: 3, 7: 4, 8: 3, 9: 2,
-  10: 2, 11: 3, 12: 3, 13: 2, 14: 2,
-  15: 4, 16: 5, 17: 4, 18: 4, 19: 3,
-  20: 3, 21: 2, 22: 4, 23: 3, 24: 2,
-  25: 4, 26: 4, 27: 5, 28: 4, 29: 4,
-  30: 2, 31: 3, 32: 2, 33: 3, 34: 2,
-  35: 1, 36: 2, 37: 2, 38: 2, 39: 1,
-  40: 5, 41: 5, 42: 4, 43: 5, 44: 4,
-  45: 4, 46: 4
 };
 
 const QUESTIONS_PER_PAGE = 10;
@@ -252,18 +238,9 @@ function showScreen(name) {
 
 /* ══ 인트로 ══ */
 document.getElementById('btn-start').addEventListener('click', () => {
-  state.isSample = false;
   renderPage(0);
   showScreen('survey');
   updateProgress();
-});
-
-document.getElementById('btn-sample').addEventListener('click', () => {
-  state.isSample = true;
-  state.answers = Object.assign({}, SAMPLE_ANSWERS);
-  state.scores = calcScores(state.answers);
-  renderReport(state.scores);
-  showScreen('result');
 });
 
 /* ══ 설문 렌더 ══
@@ -611,7 +588,6 @@ document.getElementById('btn-restart').addEventListener('click', () => {
   state.answers = {};
   state.scores = null;
   state.currentPage = 0;
-  state.isSample = false;
   showScreen('intro');
 });
 
