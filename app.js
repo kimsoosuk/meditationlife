@@ -451,11 +451,11 @@ function renderRankBars(ranked, weighted) {
    center(x,y) + 가용 폭(maxW)·높이(maxH)를 lobe bbox에서 산출. 순위순 lobe 매핑:
    1위→중앙 / 2위→상단 / 3위→우상 / 4위→우하 / 5위→하중앙. */
 const HEAD_SLOTS = [
-  { x: 410, y: 280, maxW: 230, maxH: 150, base: 80 }, // 1위 - 중앙 lobe
-  { x: 330, y: 90, maxW: 230, maxH: 86, base: 55 }, // 2위 - 상단 lobe
-  { x: 635, y: 214, maxW: 122, maxH: 130, base: 40 }, // 3위 - 우상 lobe
-  { x: 620, y: 430, maxW: 120, maxH: 74, base: 30 }, // 4위 - 우하 lobe
-  { x: 425, y: 437, maxW: 124, maxH: 56, base: 27 }, // 5위 - 하중앙 lobe
+  { x: 410, y: 280, maxW: 226, maxH: 150, base: 79 }, // 1위 - 중앙 lobe
+  { x: 330, y: 95, maxW: 230, maxH: 86, base: 51 }, // 2위 - 상단 lobe
+  { x: 635, y: 214, maxW: 96, maxH: 130, base: 39 }, // 3위 - 우상 lobe
+  { x: 620, y: 430, maxW: 96, maxH: 74, base: 29 }, // 4위 - 우하 lobe
+  { x: 425, y: 437, maxW: 86, maxH: 56, base: 26 }, // 5위 - 하중앙 lobe
 ];
 
 function renderHeadViz(ranked, weighted) {
@@ -470,7 +470,7 @@ function renderHeadViz(ranked, weighted) {
     const slot = HEAD_SLOTS[i];
     // lobe 내부 폭·높이에 모두 맞춰 폰트 자동 축소 (한글 1글자 ≈ font-size 폭으로 가정)
     const fitW = slot.maxW / (cat.length * 1.02);
-    const fontSize = Math.max(20, Math.min(slot.base, slot.maxH, fitW));
+    const fontSize = Math.max(10, Math.min(slot.base, slot.maxH, fitW));
 
     const t = document.createElementNS(NS, 'text');
     t.setAttribute('x', slot.x);
@@ -560,30 +560,4 @@ document.getElementById('btn-restart').addEventListener('click', () => {
 });
 
 /* ══ 시작 ══ */
-// TODO: [임시 개발용] 결과 리포트 화면 바로 확인 모드 (조정이 완료되면 아래 블록을 지우거나 devMode = false로 변경하세요)
-const devMode = true;
-if (devMode) {
-  const dummyAnswers = {};
-  // 첨부하신 이미지의 순서(돈, 가족, 사랑, 자존심, 미래)와 어울리는 분포로 더미 답변 데이터 설정
-  const catDummy = {
-    '돈': 5,       // 1위
-    '가족': 4.5,    // 2위
-    '사랑': 4,     // 3위
-    '자존심': 3.5,  // 4위
-    '미래': 3,     // 5위
-    '열등감': 2,
-    '건강': 2,
-    '인간관계': 2,
-    '스트레스': 4.5
-  };
-  QUESTIONS.forEach(q => {
-    dummyAnswers[q.id] = catDummy[q.cat] !== undefined ? Math.round(catDummy[q.cat]) : 3;
-  });
-  state.answers = dummyAnswers;
-  const scores = calcScores(state.answers);
-  state.scores = scores;
-  renderReport(scores);
-  showScreen('result');
-} else {
-  showScreen('intro');
-}
+showScreen('intro');
