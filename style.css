@@ -155,7 +155,7 @@ body {
   line-height: 1.9;
   color: var(--c-muted);
   word-break: keep-all;
-  margin-bottom: 32px;
+  margin-bottom: 16px; /* 버튼 위 마진 줄이기 */
   text-align: center;
 }
 .intro-body p { margin-bottom: 14px; }
@@ -170,7 +170,7 @@ body {
   gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 24px;
+  margin-top: 12px; /* 버튼 위 마진 줄이기 */
 }
 
 /* ══ SURVEY SCREEN ══ */
@@ -221,8 +221,9 @@ body {
 .q-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
 .q-number { font-size: .78rem; font-weight: 700; color: var(--c-muted); letter-spacing: .06em; }
 .q-text {
-  font-size: 1.1rem; line-height: 1.75;
-  color: var(--c-primary); font-weight: 600; margin-bottom: 32px;
+  font-size: 1.4rem; line-height: 1.7;
+  color: var(--c-primary); font-weight: 700; margin-bottom: 32px;
+  word-break: keep-all;
 }
 
 /* Linear scale — 5 circles */
@@ -273,15 +274,24 @@ body {
   box-shadow: var(--shadow);
 }
 .survey-guide p {
-  font-size: .9rem; color: var(--c-muted);
+  font-size: 1rem; color: var(--c-muted);
   line-height: 1.7; margin-bottom: 4px; word-break: keep-all;
 }
 .survey-guide p:last-child { margin-bottom: 0; }
 .survey-guide strong { color: var(--c-primary); }
 
 /* Nav */
-.survey-nav { display: flex; gap: 10px; justify-content: flex-end; }
-.survey-nav .btn-primary { padding: 12px 36px; }
+.survey-nav {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 32px;
+}
+.survey-nav .btn {
+  flex: 1;
+  padding: 14px 20px;
+  font-size: 1rem;
+}
 
 /* ══ RESULT SCREEN ══ */
 #screen-result {
@@ -574,7 +584,7 @@ body.pdf-capture .head-wrap {
     margin: 0 auto;
   }
   .question-item { padding: 24px 18px; }
-  .q-text { font-size: 1rem; }
+  .q-text { font-size: 1.25rem; font-weight: 700; }
   .scale-option { width: 42px; }
   .scale-num { font-size: .72rem; }
   .scale-label { font-size: .58rem; }
